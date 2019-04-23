@@ -58,21 +58,31 @@ module PrReleasenotes
           }
           config.start_version = release[:tag_name].sub /#{config.tag_prefix}/, ''
         rescue StandardError
-          log.error "No published releases found in #{config.repo} for branch #{config.branch}. Specify a start version explicitly."
+          log.error "No published releases found in #{config.repo} for branch #{config.branch}. Either publish a release first, or specify a start version, tag or commit explicitly."
           exit 1
         end
       end
     end
 
     def get_date_for_version(tags, version)
-      # From the tags, find the tag for the specified version and get its sha
       tagname = "#{config.tag_prefix}#{version}"
-      tag = tags.select {|tag| tag.name == tagname }.shift
-      tag.nil? and log.error "No commit found with tag name #{tagname}\n" and exit 1
-      tag_sha = tag[:commit][:sha]
+      unless tags.empty?
+        # From existing tags, find the tag for the specified version and get its sha
+        tag = tags.select {|tag| tag.name == tagname }.shift
+        sha = tag[:commit][:sha] unless tag.nil?
+      end
 
-      # get the commit for that sha, and the date for that commit.
-      commit = git_client.commit( config.repo, tag_sha )
+      unless sha
+        # No tags exist, or specified tag wasn't found. Try treating the version as a commit sha
+        sha = version
+      end
+
+      begin
+        # get the commit for that sha, and the date for that commit.
+        commit = git_client.commit( config.repo, sha )
+      rescue Octokit::Error
+        log.error "No commit found with tag name #{tagname} or sha #{version}\n" and exit 1
+      end
       commit[:commit][:author][:date]
     end
 
