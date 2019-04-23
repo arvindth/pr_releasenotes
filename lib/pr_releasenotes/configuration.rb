@@ -51,7 +51,7 @@ module PrReleasenotes
 
       # Release notes parsing options. Note that comments will always get stripped
       # Use .* with group 0 to use the entire PR description as the notes
-      @relnotes_regex = /.*/m
+      @relnotes_regex = /.\A/
       @relnotes_group = 0 # group to capture from the regex
 
       # Set categorization options
@@ -60,7 +60,7 @@ module PrReleasenotes
       # PRs without categories will get included into this default category
       @category_default = '<!--99-->Other'
       # Add a prefix to the release notes items
-      @relnotes_hdr_prefix = '### '
+      @relnotes_hdr_prefix = '* '
 
       # Optional jira url to auto link all strings matching a jira ticket pattern
       # Set to nil to skip auto link
@@ -88,13 +88,17 @@ module PrReleasenotes
 
         opts.separator ''
         opts.on('-c', '--config <config.yaml>', 'Yaml configuration') do |config|
-          YAML.load_file(config).each do |k, v|
-            begin
-              # Try calling public setter for this option
-              public_send("#{k}=",  v)
-            rescue NoMethodError => e
-              raise "#{e.message} caused by (#{config}) Invalid key '#{k}'"
+          begin
+            YAML.load_file(config).each do |k, v|
+              begin
+                # Try calling public setter for this option
+                public_send("#{k}=",  v)
+              rescue NoMethodError => e
+                raise "#{e.message} caused by (#{config}) Invalid key '#{k}'"
+              end
             end
+          rescue StandardError => e
+            raise "Unable to parse #{config} caused by #{e.message}"
           end
         end
 
