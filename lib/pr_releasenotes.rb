@@ -25,13 +25,13 @@ module PrReleasenotes
     end
 
     def run
-      # Infer start version if necessary
-      set_start_version
-      log.info "Retrieving release notes between #{config.start_version} and #{config.end_version.nil? ? 'now' : config.end_version} on branch #{config.branch}"
-      # Get commits between versions
-      commits_for_versions = get_commits_for_versions
+      # Infer start tag if necessary
+      set_start_tag
+      log.info "Retrieving release notes between #{config.start_tag} and #{config.end_tag.nil? ? 'now' : config.end_tag} on branch #{config.branch}"
+      # Get commits between tags
+      commits_for_tags = get_commits_for_tags
       # Get merged PRs for those commits
-      prs = get_prs_for_commits(commits_for_versions)
+      prs = get_prs_for_commits(commits_for_tags)
       # Get release notes from those PRs
       notes_by_pr = get_releasenotes_for_prs(prs)
       # Convert to a single string
@@ -41,9 +41,9 @@ module PrReleasenotes
       post_to_github(notes_str) if config.github_release
     end
 
-    def set_start_version
-      if config.start_version.nil?
-        # If start version isn't set, try to infer from the latest github release
+    def set_start_tag
+      if config.start_tag.nil?
+        # If start tag isn't set, try to infer from the latest github release
         begin
           releases = git_client.releases(config.repo)
                          .sort_by { |release| release[:created_at]}.reverse # order by create date, newest first
@@ -51,60 +51,60 @@ module PrReleasenotes
             unless release[:draft]
               # is a pre-release or published release, so check if this release is an ancestor of the current branch
               # "diverged" indicates it was on a different branch & "ahead" indicates it's after the
-              # specified end_version, so neither can be used as a start_version
-              # "behind" indicates it's an ancestor and can be used as a start_version,
+              # specified end_tag, so neither can be used as a start_tag
+              # "behind" indicates it's an ancestor and can be used as a start_tag,
               git_client.compare(config.repo, config.branch, release[:tag_name])[:status] == 'behind'
             end
           }
-          config.start_version = release[:tag_name].sub /#{config.tag_prefix}/, ''
+          config.start_tag = release[:tag_name].sub /#{config.tag_prefix}/, ''
         rescue StandardError
-          log.error "No published releases found in #{config.repo} for branch #{config.branch}. Either publish a release first, or specify a start version, tag or commit explicitly."
+          log.error "No published releases found in #{config.repo} for branch #{config.branch}. Either publish a release first, or specify a start tag or commit explicitly."
           exit 1
         end
       end
     end
 
-    def get_date_for_version(tags, version)
-      tagname = "#{config.tag_prefix}#{version}"
+    def get_date_for_tag(tags, tag_str)
+      tagname = "#{config.tag_prefix}#{tag_str}"
       unless tags.empty?
-        # From existing tags, find the tag for the specified version and get its sha
+        # From existing tags, find the tag for the specified tag_str and get its sha
         tag = tags.select {|tag| tag.name == tagname }.shift
         sha = tag[:commit][:sha] unless tag.nil?
       end
 
       unless sha
-        # No tags exist, or specified tag wasn't found. Try treating the version as a commit sha
-        sha = version
+        # No tags exist, or specified tag_str wasn't found. Try treating the tag_str as a commit sha
+        sha = tag_str
       end
 
       begin
         # get the commit for that sha, and the date for that commit.
         commit = git_client.commit( config.repo, sha )
       rescue Octokit::Error
-        log.error "No commit found with tag name #{tagname} or sha #{version}\n" and exit 1
+        log.error "No commit found with tag name #{tagname} or sha #{tag_str}\n" and exit 1
       end
       commit[:commit][:author][:date]
     end
 
-    def get_commits_for_versions
+    def get_commits_for_tags
 
       # The github api does not directly support getting a list of commits since a tag was applied.
       # To work around this, we instead:
 
       # get a list of tags
       tags = git_client.tags(config.repo)
-      # get the corresponding date for the tag corresponding to the start version
-      start_date = get_date_for_version tags, config.start_version
-      if config.end_version.nil?
+      # get the corresponding date for the tag corresponding to the start tag
+      start_date = get_date_for_tag tags, config.start_tag
+      if config.end_tag.nil?
         # and get a list of commits since the start_date on the configured branch
-        commits = git_client.commits_since( config.repo, start_date, config.branch)
-        log.info "Got #{commits.length} commits on #{config.branch} between #{config.start_version}(#{start_date}) and now"
+        commits = git_client.commits_since config.repo, start_date, config.branch
+        log.info "Got #{commits.length} commits on #{config.branch} between #{config.start_tag}(#{start_date}) and now"
       else
-        # and for the end version if not nil
-        end_date = get_date_for_version tags, config.end_version
+        # and for the end tag if not nil
+        end_date = get_date_for_tag tags, config.end_tag
         # and get a list of commits between the start/end dates on the configured branch
-        commits = git_client.commits_between( config.repo, start_date, end_date, config.branch)
-        log.info "Got #{commits.length} commits on #{config.branch} between #{config.start_version}(#{start_date}) and #{config.end_version}(#{end_date})"
+        commits = git_client.commits_between config.repo, start_date, end_date, config.branch
+        log.info "Got #{commits.length} commits on #{config.branch} between #{config.start_tag}(#{start_date}) and #{config.end_tag}(#{end_date})"
       end
       log.debug "Commits: " + commits.map(&:sha).join(',')
       commits
@@ -163,7 +163,7 @@ module PrReleasenotes
     end
 
     def get_notes_str(notes_by_pr)
-      notes_str = "Changes since #{config.tag_prefix}#{config.start_version}:\r\n"
+      notes_str = "Changes since #{config.tag_prefix}#{config.start_tag}:\r\n"
       if config.categorize
         # Categorize the notes, using the regex as the category names
         notes = notes_by_pr.reduce({}) { | notes, pr_note |
@@ -209,8 +209,8 @@ module PrReleasenotes
     end
 
     def post_to_github(notes_str)
-      unless config.end_version.nil?
-        tag_name = "#{config.tag_prefix}#{config.end_version}"
+      unless config.end_tag.nil?
+        tag_name = "#{config.tag_prefix}#{config.end_tag}"
         begin
           release = git_client.release_for_tag(config.repo, tag_name)
           # Found existing release, so update it

@@ -8,19 +8,19 @@
 # Release notes will be pulled from PRs merged to this branch. Defaults to master.
 # branch: master
 
-# Version range from which release notes should be gathered
+# Tag range from which release notes should be gathered
 
-# Extract pull requests starting from this version. Defaults to nil for latest published release. Override if
+# Extract pull requests starting from this tag. Defaults to nil for latest published release. Override if
 # there are no published releases yet.
 # Note: Although this parameter is listed here for completeness, this will likely be specified on the cmd line
 # since its value will vary with each release.
-# start_version:
+# start_tag:
 
 # Defaults to nil for latest commit. nil will also skip the creation of a github release
-# end_version:
+# end_tag:
 
 # If all your tags have a common prefix, add that here, and use just the varying suffix as the 
-# start/end version arguments. Defaults to blank.
+# start/end tag arguments. Defaults to blank.
 # tag_prefix: 
 
 # Short sha uniqueness threshold. Shas shorter than this may collide with other commits. When searching for

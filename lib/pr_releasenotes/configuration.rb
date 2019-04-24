@@ -21,7 +21,7 @@ module PrReleasenotes
     require 'to_regexp'
     require "pr_releasenotes/version"
 
-    attr_accessor :repo, :token, :tag_prefix, :min_sha_size, :start_version, :end_version,
+    attr_accessor :repo, :token, :tag_prefix, :min_sha_size, :start_tag, :end_tag,
                   :branch, :include_all_prs, :github_release, :relnotes_group,
                   :categorize, :category_prefix, :category_default, :relnotes_hdr_prefix,
                   :jira_baseurl, :auto_paginate, :log
@@ -39,9 +39,9 @@ module PrReleasenotes
       @tag_prefix = ''
       # Short sha uniqueness threshold. Shas shorter than this may collide with other commits
       @min_sha_size = 7
-      # Version range from which release notes should be gathered
-      @start_version = nil  # nil for latest released version
-      @end_version = nil    # nil for latest commit. nil will skip the creation of a github release
+      # Tag range from which release notes should be gathered
+      @start_tag = nil  # nil for latest released tag
+      @end_tag = nil    # nil for latest commit. nil will skip the creation of a github release
       # Release notes will be pulled from PRs merged to this branch
       @branch = 'master'
       # Whether to include even PRs without explicit release notes
@@ -111,11 +111,11 @@ module PrReleasenotes
         end
 
         opts.separator ''
-        opts.on('-s', '--start  <version>', 'Get release notes from this version tag. (Default: latest release)') do |version|
-          @start_version = version
+        opts.on('-s', '--start  <tag|sha>', 'Get release notes starting from this tag or sha. (Default: latest release)') do |tag|
+          @start_tag = tag
         end
-        opts.on('-e', '--end    <version>', 'Get release notes till this version tag. (Default: latest commit, skips creating github release)') do |version|
-          @end_version = version
+        opts.on('-e', '--end    <tag|sha>', 'Get release notes till this tag or sha. (Default: latest commit, skips creating github release)') do |tag|
+          @end_tag = tag
         end
         opts.on('-b', '--branch <branchname>', 'Use pull requests to this branch. (Default: master)') do |branch|
           @branch = branch
