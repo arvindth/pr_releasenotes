@@ -1,4 +1,4 @@
-# pr_releasenotes
+# pr_releasenotes [![Build Status](https://travis-ci.org/arvindth/pr_releasenotes.svg?branch=master)](https://travis-ci.org/arvindth/pr_releasenotes)
 
 ## Overview
 
