@@ -65,6 +65,27 @@ Get a brief usage summary by running
 
 See the [examples folder](examples) for some sample yaml configuration files.
 
+### Running as part of a release build
+
+This tool can be invoked right after a release build to automatically add release notes to a newly created release.
+
+#### Regular releases
+
+For regular releases where a previous release already exists, and a new release is being created, this tool can be invoked after the release is built by using the following form:
+
+    $ pr_releasenotes --repo <user/repo> --token <token> --end <current_release_tag>
+    
+The tool will set the start_tag to the latest tagged release prior to this one and generate release notes from that last release till the current one.
+
+#### Initial release
+
+For the initial release from a repo, there is no previous release, so the tool must be run with an explicit start sha:
+
+    $ pr_releasenotes --repo <user/repo> --token <token> --start <commit_sha> --end <current_release_tag>
+ 
+Both the `--start` and `--end` parameters support sha values as well as tags, so release notes can be generated between any two tags or commits.
+
+
 ### Github token permissions
 
 This tool does require a github token since it accesses the github api. However any token created should have only as many, or rather as few, permissions as needed.
