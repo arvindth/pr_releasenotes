@@ -1,9 +1,13 @@
 language: ruby
 rvm:
-- 2.0
-- 2.1
-- 2.2
-- 2.3
+- 2.4.1
 script:
-  - rake clean
-  - rake build
+- rake clean
+- rake build
+deploy:
+  provider: rubygems
+  api_key:
+    secure: HQCpXo1ACJVrdhl9pHoALxV9V/TpegnzWoSp/sg4Ktbv6iax1YZoLHqezrDhwSQkP6sNaTSSFOLkRYR0mVCa61zQgVKvDSr4M2kqq+SIHu+d3o/5Yzn8HlyDmjbzMATzl2wb5ZGVJFH6i/iDT9+sWvknvAfJpOkgO4tlmxwzo76yY0JOqp/nzQcluTzpCeCHZykCrqIK5yLX0Rgv01R1goVBTTfNoITjufePkiMOuOIa5TwoXPK108odLF/3JF1DpIMHcLifGgMDIt18Mtd7QxgDyMRNbmNnkzf/1NoY0fh8f/PbUBBHsNh05eCA6j36Q5EEUkPh1oPz+orj2r/zjzf2TzetbFS4byo+aXr25D1u76hbxB5UGg/WqN3lZgcj+5uqM6JxjVhrOGH3ySjnItj4ExYtr38qeoF21g6adnx2bM6nOsmfXMV3tyUjjId7SClgK11IJvfk6meh/iIHfGENi+xEqKyvuUtMtejG/e2Tud48gmXsdPlOKiwLaqr4ub1kjQOgB2g/IsIJLQ/bY6Oy79ezxBxuG4ZfESiJyAVPSTHRmnH07xBPJltWAAR7Pnjx5OQwXm4sGelgpQmX3ussRf9XujIj4+q+XQiRB8xhMtzKkLMPac0rAsr2hVQxDs2yhR/OqtZWV9JoYyg7+8sqDNPj98/kZ4L7AmdcLc8=
+  gem: pr_releasenotes
+  on:
+    repo: bazaarvoice/pr_releasenotes
