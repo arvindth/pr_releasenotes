@@ -4,6 +4,9 @@ rvm:
 script:
 - rake clean
 - rake build
+branches:
+  only:
+  - "master"
 deploy:
   provider: rubygems
   api_key:
