@@ -49,11 +49,12 @@ module PrReleasenotes
                          .sort_by { |release| release[:created_at]}.reverse # order by create date, newest first
           release = releases.find { |release|
             unless release[:draft]
-              # is a pre-release or published release, so check if this release is an ancestor of the current branch
+              # is a pre-release or published release, so check if this release is an ancestor of the end_tag or the current branch
               # "diverged" indicates it was on a different branch & "ahead" indicates it's after the
               # specified end_tag, so neither can be used as a start_tag
-              # "behind" indicates it's an ancestor and can be used as a start_tag,
-              git_client.compare(config.repo, config.branch, release[:tag_name])[:status] == 'behind'
+              # "behind" indicates it's an ancestor and can be used as a start_tag
+              end_tag = config.end_tag.nil? ? config.branch : config.end_tag
+              git_client.compare(config.repo, release[:tag_name], end_tag)[:status] == 'ahead'
             end
           }
           config.start_tag = release[:tag_name].sub /#{config.tag_prefix}/, ''
