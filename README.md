@@ -34,11 +34,11 @@ Or install it yourself as:
 
 ## Usage
 
-The minimum configuration necessary to run the tool is the repo, github token and a start release tag:
+The minimum configuration necessary to run the tool is the repo, github token and a starting tag or commit sha:
 
-    $ pr_releasenotes --repo <user/repo> --token <token> --start <latest_tagged_release>
+    $ pr_releasenotes --repo <user/repo> --token <token> --start <start_tag|sha>
 
-Additional options can be specified either by passing a yaml configuration to the included executable:
+Additional options can be specified either by passing a yaml configuration to the executable:
 
     $ pr_releasenotes --config <config.yaml> --token <token> --start <start_tag|sha> --end <end_tag|sha> --branch <non-default branch>
 
@@ -75,7 +75,7 @@ For regular releases where a previous release already exists, and a new release 
 
     $ pr_releasenotes --repo <user/repo> --token <token> --end <current_release_tag>
     
-The tool will set the start_tag to the latest tagged release prior to this one and generate release notes from that last release till the current one.
+The tool will set the start_tag to the latest tagged release prior to this one and generate release notes from that release to the current one.
 
 #### Initial release
 
