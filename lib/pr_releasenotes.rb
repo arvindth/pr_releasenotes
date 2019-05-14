@@ -4,6 +4,10 @@ require "pr_releasenotes/configuration"
 # post to github releases
 module PrReleasenotes
 
+  def self.run
+    ReleaseNotes.new.run
+  end
+
   class ReleaseNotes
 
     require 'octokit'

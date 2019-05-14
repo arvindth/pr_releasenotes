@@ -47,15 +47,13 @@ or by invoking the gem directly from ruby code:
 ```ruby
 require 'pr_releasenotes'
 
-include PrReleasenotes
-
 PrReleasenotes.configure do |config|
   config.repo('user/repo')
   config.token('github_token')
   config.parse_args(ARGV)
 end
 
-ReleaseNotes.new.run
+PrReleasenotes.run
 ```
 
 Get a brief usage summary by running
@@ -75,7 +73,7 @@ For regular releases where a previous release already exists, and a new release 
 
     $ pr_releasenotes --repo <user/repo> --token <token> --end <current_release_tag>
     
-The tool will set the start_tag to the latest tagged release prior to this one and generate release notes from that release to the current one.
+The tool will set the start_tag to the latest tagged release prior to the current one and generate release notes from that release to the current one.
 
 #### Initial release
 
