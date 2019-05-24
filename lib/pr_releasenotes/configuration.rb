@@ -142,6 +142,10 @@ module PrReleasenotes
       end
 
       opt_parser.parse!(args)
+      if @github_release && @end_tag.nil?
+        log.error "Cannot post to github without an end tag. Specify an end_tag or skip posting to github."
+        exit 1
+      end
     end
 
   end

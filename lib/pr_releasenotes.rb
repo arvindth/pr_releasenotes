@@ -75,6 +75,8 @@ module PrReleasenotes
             end
           }
           config.start_tag = release[:tag_name].sub /#{config.tag_prefix}/, ''
+        rescue Octokit::Unauthorized => e
+          throw e
         rescue StandardError
           log.error "No published releases found in #{config.repo} on or before #{tag_or_branch}. Either publish a release first, or specify a start tag or commit sha explicitly."
           exit 1
@@ -220,7 +222,9 @@ module PrReleasenotes
       else
         # No categorization required, use notes as is
         notes_str << notes_by_pr.reduce("") { | str, note |
-          str << "#{config.relnotes_hdr_prefix}#{note[:title]} [##{note[:prnum]}](https://github.com/#{config.repo}/pull/#{note[:prnum]} \"Merged #{note[:date]}\")\r\n#{note[:body]}\r\n"
+          str << "#{config.relnotes_hdr_prefix}#{note[:title]} [##{note[:prnum]}](https://github.com/#{config.repo}/pull/#{note[:prnum]} \"Merged #{note[:date]}\")\r\n"
+          str << "#{note[:body]}\r\n" unless note[:body].nil? || note[:body].empty?
+          str
         }
       end
       jiraize notes_str

@@ -1,5 +1,6 @@
 #
-# Sample configuration containing default values
+# Sample configuration containing default values.
+# At least one of the following options must be uncommented to use this configuration file
 #
 
 # Name of your repo in user/repo format. Defaults to nil and must be overridden in the yaml or on the cmd line.
