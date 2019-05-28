@@ -176,7 +176,7 @@ module PrReleasenotes
         # Regex: negative lookbehind(?<!...) for jira_prefix or beginning of link markdown,
         # followed by jira ticket pattern, followed by negative lookahead(?!...) for end of
         # link markdown
-        #              |   neg lookbehind    |  | tkt pattern |  |neg lookahead|
+        #              |        neg lookbehind        |  | tkt pattern |  |neg lookahead |
         notes_str.gsub!(/(?<!#{config.jira_baseurl}|\[)\b([A-Z]{2,}-\d+)\b(?![^\[\]]*\]\()/, "[\\1](#{config.jira_baseurl}\\1)")
       end
       notes_str
