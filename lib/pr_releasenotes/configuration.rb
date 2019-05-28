@@ -50,7 +50,7 @@ module PrReleasenotes
       @github_release = false
 
       # Release notes parsing options. Note that comments will always get stripped
-      # Use .* with group 0 to use the entire PR description as the notes
+      # By default, only the PR titles will be used, so match nothing from the description
       @relnotes_regex = /.\A/
       @relnotes_group = 0 # group to capture from the regex
 
